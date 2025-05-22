@@ -1,13 +1,33 @@
-#include <sys/stat.h>
-#define _GNU_SOURCE
 #include <dirent.h>
+#include <errno.h>
 #include <stdio.h>
-#include <sys/statvfs.h>
-#include <sys/syscall.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include <string.h>
 
-int main() {
-  printf("Hello, ls clone!\n");
-  return 0;
+static void lookup() {
+  DIR *dirp;
+  struct dirent *dp;
+
+  if ((dirp = opendir(".")) == NULL) {
+    perror("couldn't open '.'");
+    return;
+  }
+
+  do {
+    errno = 0;
+    if ((dp = readdir(dirp)) != NULL) {
+      // logic for ls
+      printf("%s\n", dp->d_name);
+    }
+  } while (dp != NULL);
+
+  if (errno != 0)
+    perror("error reading directory");
+  else
+    (void)closedir(dirp);
+  return;
+}
+
+int main(int argc, char *argv[]) {
+  lookup();
+  return (0);
 }
